@@ -1,0 +1,39 @@
+version: "3,8"
+services: 
+
+django:
+	build:
+		context: .
+		target: dev
+	command: bash -c 'python3 manage.py collectstatic --noinput && python3 manage.py runserver 0.0.0.0:8888'
+	environment:
+	- STATIC_ROOT=/app/swishnet/static
+	- DATABASE_URL=psql://postgres:local-password@postgres/swishnet
+	- REDIS_HOST=redis
+	networks:
+		- swishnet
+	expose:
+		- "8888"
+	ports:
+		- "8888:8888"
+	depends_on:
+		- postgres
+	volumes:
+		- .:/app/swishnet
+
+postgress:
+	image: postgres:13.1-alpine
+	volumes:
+		-	postgres_volume:/var/lib/postgresql/data
+	networks:
+		-	local_network
+	enviroment:
+		-	POSTGRES_PASSWORD=local-password
+		-	POSTGRES_DB=swishnet
+
+networks:
+	local_networks:
+
+volumes: 
+	postgres_volume:
+
